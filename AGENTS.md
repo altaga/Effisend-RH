@@ -6,7 +6,7 @@ Instructions for AI coding agents working in this repository. Humans should read
 
 - This is the **public, minimal** companion of Effisend for the Robinhood Chain hackathon.
 - It contains:
-  - the Effi NFT contract project (`Contracts/`), copied unchanged from production;
+  - the Effi NFT contract project (`Contracts/`): source and compiler settings unchanged from production, test tooling on Hardhat 3;
   - the public Robinhood Chain configuration (`App/robinhood-chain.json`);
   - UI screenshots (`App/screenshots/`);
   - documentation.
@@ -45,6 +45,7 @@ node test.cjs                 # local Hardhat network; prints "ALL TESTS PASSED"
 - `compile.cjs` defaults to `evmVersion: paris`. With OpenZeppelin 5.6.1 that **fails** (`mcopy` needs Cancun). Always pass `EVM=cancun`.
 - The deployed runtime bytecode on Robinhood Chain matches the source compiled with **solc 0.8.28, optimizer on with 200 runs, `evmVersion: cancun`**, byte for byte. Any change to `contracts/EffisendNFT.sol`, the compiler or its settings breaks that match. Do not edit the contract unless the task is explicitly about a new deployment, and say so when you do.
 - `build/`, `artifacts/`, `cache/` and `node_modules/` are gitignored; never commit them.
+- `package.json` is `"type": "module"` because Hardhat 3 needs an ESM `hardhat.config.js`; the `.cjs` scripts stay CommonJS. `overrides.tmp` pins a patched `tmp` under `solc` (it is only used by solc's CLI, not by `compile.cjs`). Keep `npm audit` at 0 vulnerabilities, and never bump `solc` or `@openzeppelin/contracts`: that would change the bytecode.
 
 Contract behaviour (`EffisendNFT`, ERC-721 on OpenZeppelin 5, `Ownable`):
 
@@ -95,7 +96,7 @@ App/screenshots/*.jpg          UI captures from the live app (JPEG, 1620 px wide
 Contracts/contracts/EffisendNFT.sol
 Contracts/compile.cjs          solc build -> build/EffisendNFT.json (use EVM=cancun)
 Contracts/test.cjs             Hardhat in-memory tests
-Contracts/hardhat.config.cjs   solidity 0.8.28, hardfork cancun
+Contracts/hardhat.config.js    Hardhat 3 (ESM), in-memory EVM for tests, hardfork cancun
 Contracts/deployments.json     addresses + explorers on every chain
 README.md                      usage docs for humans
 AGENTS.md                      this file

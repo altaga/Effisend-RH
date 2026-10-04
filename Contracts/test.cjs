@@ -1,7 +1,7 @@
-process.env.HARDHAT_CONFIG="hardhat.config.cjs"; const hre=require("hardhat"); const {BrowserProvider,ContractFactory,Contract,Wallet}=require("ethers"); const art=require("./build/EffisendNFT.json");
+const {BrowserProvider,ContractFactory,Contract,Wallet}=require("ethers"); const art=require("./build/EffisendNFT.json");
 const assert=(c,m)=>{if(!c)throw new Error("FAIL: "+m);console.log("  ok -",m)};
 (async()=>{
- const provider=new BrowserProvider(hre.network.provider);
+ const { network }=await import("hardhat"); const { provider: eip1193 }=await network.connect(); const provider=new BrowserProvider(eip1193);
  const [owner,alice,bob]=await Promise.all([0,1,2].map(i=>provider.getSigner(i)));
  const URI="https://effisend-tdc.expo.app/nft/effi.json";
  const f=new ContractFactory(art.abi,art.bytecode,owner);

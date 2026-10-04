@@ -6,7 +6,7 @@
 
 This repository is the public, minimal companion for the Robinhood Chain hackathon:
 
-- `Contracts/`: the Effi NFT contract, exactly as deployed (source, build and tests).
+- `Contracts/`: the Effi NFT contract exactly as deployed, with its build script and tests.
 - `App/`: screenshots and the public Robinhood Chain configuration the app uses.
 - This guide: what you can do on Robinhood Chain with Effisend, which services it connects to, and how it works.
 
@@ -318,6 +318,8 @@ EVM=cancun node compile.cjs   # writes build/EffisendNFT.json (ABI + bytecode)
 node test.cjs                 # local Hardhat network: mint, distribute, permissions
 ```
 
+The tests run on Hardhat 3's in-memory EVM, and `npm audit` reports no known vulnerabilities. The contract source, solc 0.8.28 and OpenZeppelin 5.6.1 are exactly the ones used for the deployment.
+
 ---
 
 ## Security model
@@ -339,7 +341,7 @@ Effisend-RH/
 │   └── screenshots/           # UI captures from the live app (JPEG)
 ├── Contracts/
 │   ├── contracts/EffisendNFT.sol
-│   ├── compile.cjs  test.cjs  hardhat.config.cjs
+│   ├── compile.cjs  test.cjs  hardhat.config.js
 │   ├── package.json  package-lock.json
 │   └── deployments.json       # addresses on every chain
 ├── AGENTS.md                  # guide for AI agents working on this repo

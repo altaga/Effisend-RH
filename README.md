@@ -9,7 +9,6 @@ Effisend is a multichain wallet you unlock with your face, built for visitors of
 This repository is the public, minimal companion for the Robinhood Chain hackathon. It contains:
 
 - `Contracts/`: the Effi NFT contract exactly as deployed, with its build script and tests.
-- `Verifier/`: an independent, read-only checkout verifier with tests.
 - `App/`: screenshots, photos and the public Robinhood Chain configuration the app uses.
 
 The app's source code and its backend are not in this repository.
@@ -42,7 +41,6 @@ The app's source code and its backend are not in this repository.
 | **Card top-up from Robinhood** | USDG on Robinhood to USDC on Linea in about a second | [`0xc9bd…8a75`](https://robin.etherscan.io/tx/0xc9bdb0d58abc5e118317dd58ce53aacd40db4b8e5c362f8b481e78e51baf8a75) → [`0x3ca8…713e`](https://lineascan.build/tx/0x3ca8e0b83a2fc192741f64669fe91287031cf6b34de408cf91eb209cf234713e) |
 | **Effi NFT on Robinhood** | Contract verified byte for byte against this repo's source | [`0xDDa3…DC97`](https://robin.etherscan.io/address/0xDDa30795FF04677C1c4B58616b7b77503554DC97) |
 | **Real merchant sales** | Pudgy Penguins Pop-Up, Tokyo Dome City: **20 paid orders, $635.67, 14 paying wallets** | [all 20 transactions](#real-world-traction-pudgy-penguins-pop-up) |
-| **Independent verification** | Duplicate orders, expired quotes, wrong payee or token, caps, refunds, failed settlement | [`Verifier/`](Verifier/) (13 tests) |
 
 ---
 
@@ -437,10 +435,6 @@ Effisend-RH/
 │   ├── compile.cjs  test.cjs  hardhat.config.js
 │   ├── package.json  package-lock.json
 │   └── deployments.json       # addresses on every chain
-├── Verifier/
-│   ├── verify.mjs             # checkout receipt verifier (library + CLI, no dependencies)
-│   ├── verify.test.mjs        # node --test
-│   └── fixtures/              # two real Robinhood Chain receipts
 ├── AGENTS.md                  # guide for AI agents working on this repo
 ├── LICENSE                    # MIT
 └── README.md

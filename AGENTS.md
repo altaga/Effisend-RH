@@ -7,7 +7,6 @@ Instructions for AI coding agents working in this repository. Humans should read
 - This is the **public, minimal** companion of Effisend for the Robinhood Chain hackathon.
 - It contains:
   - the Effi NFT contract project (`Contracts/`): source and compiler settings unchanged from production, test tooling on Hardhat 3;
-  - an independent, read-only checkout verifier (`Verifier/`), dependency-free, with tests on real receipts;
   - the public Robinhood Chain configuration (`App/robinhood-chain.json`);
   - UI screenshots (`App/screenshots/`);
   - documentation.
@@ -57,22 +56,7 @@ Rules:
 - When an external purchase on Robinhood Chain happens, add its hash to "At a glance". Do not reword the existing claims to suggest it happened earlier.
 - TOKEN2049 Singapore is a **planned** demo (README: "Next: …"). Keep it as a plan until there are real results; then report only on-chain facts (hashes, amounts), the same way as the Pudgy section.
 
-## 4. Verifier: run and extend
-
-```bash
-cd Verifier
-node --test            # 12 offline tests (fixtures = 2 real Robinhood receipts)
-LIVE=1 node --test     # + live re-read of both receipts from Robinhood Chain
-node verify.mjs --chain 4663 --tx <hash> --payee <addr> --token USDG --amount <x> --created <ISO> [--ttl 1800] [--max <cap>] [--seen <file>]
-```
-
-- No dependencies: keep it that way (Node ≥ 20 `fetch` and `node:test`).
-- Chains and tokens: Robinhood comes from `App/robinhood-chain.json`; Arbitrum One USDC is `0xaf88d065e77c8cC2239327C5EDb3A432268e5831`. Add a token only with its official contract.
-- Amounts are exact `BigInt` math (`toUnits` / `fromUnits`). Never use floating point for money.
-- Fixtures are real on-chain data. Negative tests mutate in-memory copies; never edit the fixture files.
-- It is a public reference for settlement checks, **not** Effisend's backend. Don't describe it as production code.
-
-## 5. Contracts: build, test, verify
+## 4. Contracts: build, test, verify
 
 ```bash
 cd Contracts
@@ -93,7 +77,7 @@ Contract behaviour (`EffisendNFT`, ERC-721 on OpenZeppelin 5, `Ownable`):
 - `mintBatch(n)` mints to the owner (treasury). `distribute(to)` transfers the **next token the owner still holds**, in id order, and reverts with "No tokens left to distribute" when none remain.
 - `mint(to)` mints directly to a recipient. Every write function is `onlyOwner`.
 
-## 6. Verifying claims on-chain (read-only)
+## 5. Verifying claims on-chain (read-only)
 
 Prefer checking the chain over trusting text. These calls are free and move no funds:
 
@@ -110,7 +94,7 @@ curl -s -X POST $RPC -H 'content-type: application/json' \
 
 Never send transactions, sign messages or use private keys from this repository.
 
-## 7. Editing the documentation
+## 6. Editing the documentation
 
 - `README.md` is user-facing usage documentation: features on Robinhood Chain, connected services, and how it works (Mermaid).
   - Keep every statement verifiable from this repo, the chain or the live app.
@@ -119,7 +103,7 @@ Never send transactions, sign messages or use private keys from this repository.
 - Screenshots live in `App/screenshots/` as JPEGs under 200 KB each: 4 compositions of 3 phone screens (1620 px wide) plus one single screen (`5_effi_nft_robinhood.jpg`, 620 px wide) and the pop-up photo strip (`6_pudgy_popup_tokyo_dome_city.jpg`, faces of customers excluded, no EXIF). README sections are organised by feature, each with its screenshot, its Mermaid diagram and its on-chain proof; keep that structure. Reference them with relative paths. Do not add screenshots that show secrets, seed phrases, PIN entry with digits visible, or personal data beyond public addresses.
 - Write in English. Use the product names exactly as written: "Effisend", "DeSmond", "Robinhood Chain", "USDG", "Effi", "LI.FI", "Layerswap".
 
-## 8. Hard rules
+## 7. Hard rules
 
 1. No secrets, keys, `.env` files, private endpoints, cloud resource names or internal hostnames. The `.gitignore` already blocks `.env*`, `*.pem` and `*.key`; do not weaken it.
 2. Do not add the app or backend source, and do not reconstruct them from the screenshots.
@@ -127,7 +111,7 @@ Never send transactions, sign messages or use private keys from this repository.
 4. Do not invent addresses, chain ids, token decimals, fees or features. If something is not in this repo or verifiable on-chain, leave it out.
 5. License is MIT (`LICENSE`). Keep it.
 
-## 9. Repository map
+## 8. Repository map
 
 ```
 App/robinhood-chain.json       public chain config (RPCs, tokens, explorer, Effi address)
@@ -137,9 +121,6 @@ Contracts/compile.cjs          solc build -> build/EffisendNFT.json (use EVM=can
 Contracts/test.cjs             Hardhat in-memory tests
 Contracts/hardhat.config.js    Hardhat 3 (ESM), in-memory EVM for tests, hardfork cancun
 Contracts/deployments.json     addresses + explorers on every chain
-Verifier/verify.mjs            checkout receipt verifier (library + CLI)
-Verifier/verify.test.mjs       node --test (offline; LIVE=1 adds a chain re-read)
-Verifier/fixtures/*.json       two real Robinhood Chain receipts
 README.md                      usage docs for humans
 AGENTS.md                      this file
 LICENSE                        MIT

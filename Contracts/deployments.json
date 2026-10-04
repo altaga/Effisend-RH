@@ -1,0 +1,15 @@
+{
+  "contract": "EffisendNFT",
+  "collection": { "name": "Effi", "symbol": "EFFI" },
+  "compiler": { "solc": "0.8.28", "optimizer": { "enabled": true, "runs": 200 }, "evmVersion": "cancun" },
+  "note": "Same address on every chain. The runtime bytecode on Robinhood Chain and Arbitrum One matches contracts/EffisendNFT.sol compiled with the settings above, byte for byte.",
+  "deployments": [
+    { "chain": "Robinhood Chain", "chainId": 4663, "address": "0xDDa30795FF04677C1c4B58616b7b77503554DC97", "explorer": "https://robin.etherscan.io/address/0xDDa30795FF04677C1c4B58616b7b77503554DC97" },
+    { "chain": "Arbitrum One", "chainId": 42161, "address": "0xDDa30795FF04677C1c4B58616b7b77503554DC97", "explorer": "https://arbiscan.io/address/0xDDa30795FF04677C1c4B58616b7b77503554DC97" },
+    { "chain": "Arc", "chainId": 5042, "address": "0xDDa30795FF04677C1c4B58616b7b77503554DC97", "explorer": "https://arc.etherscan.io/address/0xDDa30795FF04677C1c4B58616b7b77503554DC97" },
+    { "chain": "Base", "chainId": 8453, "address": "0xDDa30795FF04677C1c4B58616b7b77503554DC97", "explorer": "https://basescan.org/address/0xDDa30795FF04677C1c4B58616b7b77503554DC97" },
+    { "chain": "Polygon", "chainId": 137, "address": "0xDDa30795FF04677C1c4B58616b7b77503554DC97", "explorer": "https://polygonscan.com/address/0xDDa30795FF04677C1c4B58616b7b77503554DC97" },
+    { "chain": "Avalanche", "chainId": 43114, "address": "0xDDa30795FF04677C1c4B58616b7b77503554DC97", "explorer": "https://snowtrace.io/address/0xDDa30795FF04677C1c4B58616b7b77503554DC97" },
+    { "chain": "Monad", "chainId": 143, "address": "0xDDa30795FF04677C1c4B58616b7b77503554DC97", "explorer": "https://monadscan.com/address/0xDDa30795FF04677C1c4B58616b7b77503554DC97" }
+  ]
+}

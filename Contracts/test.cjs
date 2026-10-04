@@ -1,0 +1,24 @@
+process.env.HARDHAT_CONFIG="hardhat.config.cjs"; const hre=require("hardhat"); const {BrowserProvider,ContractFactory,Contract,Wallet}=require("ethers"); const art=require("./build/EffisendNFT.json");
+const assert=(c,m)=>{if(!c)throw new Error("FAIL: "+m);console.log("  ok -",m)};
+(async()=>{
+ const provider=new BrowserProvider(hre.network.provider);
+ const [owner,alice,bob]=await Promise.all([0,1,2].map(i=>provider.getSigner(i)));
+ const URI="https://effisend-tdc.expo.app/nft/effi.json";
+ const f=new ContractFactory(art.abi,art.bytecode,owner);
+ const c=await f.deploy("Effi","EFFI",URI,await owner.getAddress()); await c.waitForDeployment();
+ const dep=await provider.getTransactionReceipt(c.deploymentTransaction().hash); console.log("deploy gas",dep.gasUsed.toString());
+ let r=await (await c.mintBatch(100)).wait(); console.log("mintBatch(100) gas",r.gasUsed.toString());
+ assert((await c.totalMinted())==100n,"100 minted"); assert((await c.balanceOf(await owner.getAddress()))==100n,"treasury holds 100");
+ assert((await c.tokenURI(0))===URI,"tokenURI(0) = shared json (app reads token 0)");
+ r=await (await c.distribute(await alice.getAddress())).wait(); console.log("distribute gas",r.gasUsed.toString());
+ assert((await c.ownerOf(0))===await alice.getAddress(),"token 0 -> alice");
+ await (await c.distribute(await bob.getAddress())).wait(); assert((await c.ownerOf(1))===await bob.getAddress(),"token 1 -> bob");
+ r=await (await c.mint(await alice.getAddress())).wait(); console.log("direct mint gas",r.gasUsed.toString());
+ assert((await c.ownerOf(100))===await alice.getAddress(),"direct mint id 100 -> alice");
+ let failed=false; try{await (await c.connect(alice).mintBatch(1)).wait()}catch{failed=true} assert(failed,"non-owner cannot mint");
+ failed=false; try{await (await c.connect(alice).distribute(await bob.getAddress())).wait()}catch{failed=true} assert(failed,"non-owner cannot distribute");
+ for(let i=0;i<98;i++) await (await c.distribute(await bob.getAddress())).wait();
+ assert((await c.balanceOf(await owner.getAddress()))==0n,"all 100 distributed");
+ failed=false; try{await (await c.distribute(await bob.getAddress())).wait()}catch{failed=true} assert(failed,"distribute reverts when empty");
+ console.log("ALL TESTS PASSED");
+})().catch(e=>{console.error(e.message);process.exit(1)});

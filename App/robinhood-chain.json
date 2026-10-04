@@ -1,0 +1,23 @@
+{
+  "network": "Robinhood Chain",
+  "chainId": 4663,
+  "nativeToken": "ETH",
+  "blockExplorer": "https://robin.etherscan.io/",
+  "publicRpcs": [
+    "https://rpc-robinhood.globalstake.io",
+    "https://robinhood-rpc.publicnode.com",
+    "https://rpc.ordofi.network",
+    "https://rpc.mainnet.chain.robinhood.com",
+    "https://robinhood.api.pocket.network"
+  ],
+  "tokens": [
+    { "symbol": "ETH", "name": "Ethereum", "address": "0x0000000000000000000000000000000000000000", "decimals": 18 },
+    { "symbol": "USDG", "name": "Global Dollar", "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168", "decimals": 6 },
+    { "symbol": "WETH", "name": "Wrapped ETH", "address": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73", "decimals": 18 }
+  ],
+  "dollar": "USDG",
+  "dollarNote": "Robinhood Chain has no USDC. Wherever Effisend works in plain dollars on Robinhood (Robinhood Pay, card top-ups, bridges) it uses USDG.",
+  "bridging": "LI.FI first, Layerswap as fallback (Robinhood Chain is not on Circle CCTP)",
+  "effiNft": "0xDDa30795FF04677C1c4B58616b7b77503554DC97",
+  "liveApp": "https://effisend-tdc.expo.app"
+}

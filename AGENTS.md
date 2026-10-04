@@ -76,7 +76,7 @@ Never send transactions, sign messages or use private keys from this repository.
   - Keep every statement verifiable from this repo, the chain or the live app.
   - When you change behaviour descriptions, keep the Mermaid diagrams consistent with the tables.
 - Mermaid must render on GitHub (Mermaid 11). Quote labels that contain punctuation (`A["text (x)"]`), use `<br/>` for line breaks, and avoid `;` inside messages. Render-check the diagrams before committing.
-- Screenshots live in `App/screenshots/` as JPEGs (1620 px wide, under 200 KB each): 4 compositions of 3 phone screens each. Reference them with relative paths. Do not add screenshots that show secrets, seed phrases, PIN entry with digits visible, or personal data beyond public addresses.
+- Screenshots live in `App/screenshots/` as JPEGs under 200 KB each: 4 compositions of 3 phone screens (1620 px wide) plus one single screen (`5_effi_nft_robinhood.jpg`, 620 px wide). README sections are organised by feature, each with its screenshot, its Mermaid diagram and its on-chain proof; keep that structure. Reference them with relative paths. Do not add screenshots that show secrets, seed phrases, PIN entry with digits visible, or personal data beyond public addresses.
 - Write in English. Use the product names exactly as written: "Effisend", "DeSmond", "Robinhood Chain", "USDG", "Effi", "LI.FI", "Layerswap".
 
 ## 6. Hard rules

@@ -54,7 +54,8 @@ Rules:
 - Do not publish a checkout success rate: attempts that never reached the chain are not measurable on-chain.
 - Do not list customers' wallet addresses in prose (the explorer links are enough).
 - Photos: no identifiable customer faces, and strip EXIF/GPS before committing.
-- When an external purchase on Robinhood Chain happens, add its hash to "At a glance" and "What is proven". Do not reword the existing claims to suggest it happened earlier.
+- When an external purchase on Robinhood Chain happens, add its hash to "At a glance". Do not reword the existing claims to suggest it happened earlier.
+- TOKEN2049 Singapore is a **planned** demo (README: "Next: …"). Keep it as a plan until there are real results; then report only on-chain facts (hashes, amounts), the same way as the Pudgy section.
 
 ## 4. Verifier: run and extend
 

@@ -303,6 +303,8 @@ Not counted: setup and test transfers under $5 (the morning of 9/24 and on 9/28)
 
 **Next stop: Robinhood Chain.** The same counter flow, now with Face ID and USDG on Robinhood Chain's ~0.1 s blocks, is live in the app today (see [Face ID checkout](#1-face-id-checkout-selfie--pin)). The pop-up showed that real customers will pay in stablecoins at a merch counter; Robinhood Chain makes that payment confirm instantly in a native dollar.
 
+**Next: live Face Checkout demos on Robinhood Chain at TOKEN2049 Singapore.**
+
 ---
 
 ## Verify any checkout yourself

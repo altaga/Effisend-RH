@@ -64,7 +64,7 @@ The app's source code and its backend are not in this repository.
 Tips:
 
 - Keep a little **ETH on Robinhood** for gas (≥ 0.0001 ETH is a comfortable floor).
-- Amounts in plain dollars ("5 USD", "5 dólares") always mean **USDG** on Robinhood.
+- Amounts in plain dollars ("5 USD", "5 dollars") always mean **USDG** on Robinhood.
 - Bridges and top-ups have fixed fees of a few cents, so very small amounts (under ~1 USD) lose a noticeable share.
 
 ---

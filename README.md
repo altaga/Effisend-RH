@@ -18,19 +18,19 @@ The app's source code and its backend are not in this repository.
 
 | Wallet, Receive (QR) and Send on Robinhood |
 |---|
-| ![Wallet, Receive QR and Send on Robinhood](App/screenshots/1_wallet_receive_send_robinhood.png) |
+| ![Wallet, Receive QR and Send on Robinhood](App/screenshots/1_wallet_receive_send_robinhood.jpg) |
 
 | Robinhood Pay, created and confirmed through DeSmond |
 |---|
-| ![Robinhood Pay request, confirmation and DeSmond balance](App/screenshots/2_robinhood_pay_desmond.png) |
+| ![Robinhood Pay request, confirmation and DeSmond balance](App/screenshots/2_robinhood_pay_desmond.jpg) |
 
 | Face ID checkout paid in USDG on Robinhood |
 |---|
-| ![Charge with Face ID paid in USDG](App/screenshots/3_faceid_charge_usdg.png) |
+| ![Charge with Face ID paid in USDG](App/screenshots/3_faceid_charge_usdg.jpg) |
 
 | Swap, Bridge and the Effi NFT on Robinhood |
 |---|
-| ![Swap ETH to USDG, bridge USDG out, Effi NFT on Robinhood](App/screenshots/4_swap_bridge_effi_robinhood.png) |
+| ![Swap ETH to USDG, bridge USDG out, Effi NFT on Robinhood](App/screenshots/4_swap_bridge_effi_robinhood.jpg) |
 
 ---
 
@@ -92,42 +92,45 @@ The rule throughout is **client first, server as fallback**. Reads (balances, pr
 ### Architecture
 
 ```mermaid
-flowchart LR
-  subgraph Device["User device - Effisend app"]
-    UI["Wallet UI<br/>Wallet, Send, Swap, Bridge, Charge, Passes"]
+flowchart TB
+  subgraph Device["User device: Effisend app"]
+    direction LR
+    UI["Wallet UI<br/>Send · Swap · Bridge · Charge · Passes"]
     AG["DeSmond chat"]
   end
-  subgraph Public["Public infrastructure"]
-    RPC["Robinhood Chain RPCs<br/>chainId 4663"]
-    PX["DefiLlama / CoinGecko"]
-    EXP["robin.etherscan.io"]
-  end
-  subgraph Backend["Effisend backend - private"]
-    API["Signed API routes"]
-    CUS["Custodial signer<br/>keys encrypted with KMS"]
-    FACE["Face ID + anti-spoofing"]
-    DES["DeSmond agent"]
-  end
-  subgraph Routing["Routing"]
-    LIFI["LI.FI"]
-    LS["Layerswap"]
-  end
-  RH[("Robinhood Chain<br/>ETH, USDG, WETH, Effi NFT")]
 
-  UI -- "balances, reads (client first)" --> RPC
-  UI -- "prices (client first)" --> PX
-  UI -- "links" --> EXP
-  UI -- "HMAC-signed requests" --> API
-  AG --> API
+  subgraph Public["Public infrastructure (read directly from the device)"]
+    direction LR
+    RPC["Robinhood Chain RPCs<br/>chainId 4663"]
+    PX["Prices<br/>DefiLlama · CoinGecko"]
+    EXP["Explorer<br/>robin.etherscan.io"]
+  end
+
+  subgraph Backend["Effisend backend (private)"]
+    direction LR
+    API["Signed API"]
+    FACE["Face ID<br/>+ anti-spoofing"]
+    DES["DeSmond agent"]
+    CUS["Custodial signer<br/>KMS-encrypted keys"]
+  end
+
+  subgraph Routing["Swap & bridge routing"]
+    direction LR
+    LIFI["LI.FI"]
+    LS["Layerswap<br/>(fallback)"]
+  end
+
+  RH[("Robinhood Chain<br/>ETH · USDG · WETH · Effi NFT")]
+
+  Device -- "reads first" --> Public
+  Device -- "HMAC-signed requests" --> API
   API --> FACE
   API --> DES
   API --> CUS
   DES --> CUS
   CUS -- "signed transactions" --> RH
-  CUS -- "quotes / routes" --> LIFI
-  CUS -- "fallback" --> LS
-  LIFI --> RH
-  LS --> RH
+  CUS -- "routes" --> Routing
+  Routing --> RH
   RPC --- RH
 ```
 
@@ -268,7 +271,7 @@ node test.cjs                 # local Hardhat network: mint, distribute, permiss
 Effisend-RH/
 ├── App/
 │   ├── robinhood-chain.json   # public Robinhood Chain config used by the app
-│   └── screenshots/           # UI captures from the live app
+│   └── screenshots/           # UI captures from the live app (JPEG, 1620 px wide)
 ├── Contracts/
 │   ├── contracts/EffisendNFT.sol
 │   ├── compile.cjs  test.cjs  hardhat.config.cjs

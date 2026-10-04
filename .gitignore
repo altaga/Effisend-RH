@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Secrets — never commit keys or env files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.secret*
+
+# App (Expo / React Native / web)
+.expo/
+.expo-shared/
+dist/
+web-build/
+build/
+ios/
+android/
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+expo-env.d.ts
+
+# Contracts (Hardhat / Foundry)
+artifacts/
+cache/
+out/
+broadcast/
+typechain-types/
+coverage/
+coverage.json
+deployments/localhost/
+
+# Logs and tooling
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+.vercel/
+.turbo/
+.eslintcache
+*.tsbuildinfo
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp

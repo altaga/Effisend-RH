@@ -34,6 +34,20 @@ The app's source code and its backend are not in this repository.
 
 ---
 
+## Proof: real transactions on Robinhood Chain
+
+These transactions were made through the live app with Effisend's own test wallet (`0xa80B…5578`) and the venue's point-of-sale wallet (`0xAfDd…7456`). Click any hash to see it on the explorer.
+
+| What happened | Transaction | Details |
+|---|---|---|
+| **Face ID checkout paid in USDG** | [`0x06c2…b604`](https://robin.etherscan.io/tx/0x06c2a265a34f4df6c743208f2829e58ffa89b69a96d53de529689ee4fba8b604) | 0.009999 USDG (≈ $0.01) from the customer's wallet to the point of sale, signed after a face match · 2026-10-02 |
+| **Paying a Robinhood Pay request** | [`0x9461…607a`](https://robin.etherscan.io/tx/0x94611b2590778ac952ef9b365e2aa0c82d4532b51d14ce55776b71e56dea607a) | 0.01 USDG sent from the wallet to the point of sale. The Robinhood Pay card detected it on-chain and switched to *Payment Confirmed* · 2026-10-02 |
+| **Card top-up from Robinhood (source)** | [`0xc9bd…8a75`](https://robin.etherscan.io/tx/0xc9bdb0d58abc5e118317dd58ce53aacd40db4b8e5c362f8b481e78e51baf8a75) | "0.1 USD from Robinhood Chain" resolved to USDG and sent into a LI.FI route (Relay) · 2026-10-01 |
+| **Card top-up (arrival on Linea)** | [`0x3ca8…713e`](https://lineascan.build/tx/0x3ca8e0b83a2fc192741f64669fe91287031cf6b34de408cf91eb209cf234713e) | USDC delivered on Linea about a second later. This was a deliberately tiny test, so the fixed bridge fee is a large share of it. |
+| **Effi NFT delivered on Robinhood** | [`0x470f…2d82`](https://robin.etherscan.io/tx/0x470f2546765b6f153ddd4eab91a92479aed53e8b3b2634b507cdb04a3daf2d82) | Token #0 of the Effi collection sent from the treasury by `distribute()` · 2026-09-30 |
+
+---
+
 ## Why Robinhood Chain is essential to Effisend
 
 - **USDG is Effisend's dollar on Robinhood.** Robinhood Chain has no USDC, so whenever a user says "dollars" on Robinhood (a Robinhood Pay QR, a card top-up, a bridge), Effisend uses **USDG (Global Dollar)**. Users never have to choose a stablecoin.

@@ -26,11 +26,10 @@ The app's source code and its backend are not in this repository.
 8. [The Effi NFT on Robinhood](#5-the-effi-nft-on-robinhood)
 9. [DeSmond and analytics](#6-desmond-and-analytics)
 10. [Real-world traction: Pudgy Penguins Pop-Up](#real-world-traction-pudgy-penguins-pop-up)
-11. [Verify any checkout yourself](#verify-any-checkout-yourself)
-12. [Quick reference](#quick-reference)
-13. [Architecture and connected services](#architecture-and-connected-services)
-14. [Contracts](#contracts)
-15. [Security model](#security-model)
+11. [Quick reference](#quick-reference)
+12. [Architecture and connected services](#architecture-and-connected-services)
+13. [Contracts](#contracts)
+14. [Security model](#security-model)
 
 ---
 
@@ -104,7 +103,7 @@ sequenceDiagram
   POS-->>C: "View on Explorer" (robin.etherscan.io)
 ```
 
-**On-chain proof:** [`0x06c2…b604`](https://robin.etherscan.io/tx/0x06c2a265a34f4df6c743208f2829e58ffa89b69a96d53de529689ee4fba8b604). 0.009999 USDG (≈ $0.01) from the customer to the point of sale (2026-10-02). Check it yourself with the [verifier](#verify-any-checkout-yourself).
+**On-chain proof:** [`0x06c2…b604`](https://robin.etherscan.io/tx/0x06c2a265a34f4df6c743208f2829e58ffa89b69a96d53de529689ee4fba8b604). 0.009999 USDG (≈ $0.01) from the customer to the point of sale (2026-10-02).
 
 ---
 ## 2. Robinhood Pay
@@ -307,36 +306,6 @@ Not counted: setup and test transfers under $5 (the morning of 9/24 and on 9/28)
 
 ---
 
-## Verify any checkout yourself
-
-[`Verifier/`](Verifier/) is a small, dependency-free tool that answers one question from the chain alone: **did this exact order get paid, once, on time, to the right wallet, in the right token?** It needs no keys and no backend, and runs on public RPCs for Robinhood Chain (USDG, WETH) and Arbitrum One (USDC).
-
-```bash
-cd Verifier
-node --test                 # 12 offline tests on two real Robinhood receipts
-LIVE=1 node --test          # + 1 test that re-reads both receipts from Robinhood Chain
-
-node verify.mjs --chain 4663 --token USDG --amount 0.009999 \
-  --payee 0xAfDd6F1608F20481aD8376AB36B5080B2Ad27456 \
-  --tx 0x06c2a265a34f4df6c743208f2829e58ffa89b69a96d53de529689ee4fba8b604 \
-  --created 2026-10-02T06:07:00Z
-# PASS settled · token · payee · amount · window · unique  ->  ✔ order settled
-```
-
-| Risk | Check | Covered by test |
-|---|---|---|
-| Failed settlement | the transaction must succeed | reverted transaction never settles |
-| Wrong payee | the token must reach the merchant's wallet | funds sent to another wallet |
-| Wrong token | the right token contract (spam copies don't match) | WETH order paid in USDG |
-| Underpayment | paid ≥ order amount (tolerance is explicit) | 0.01 order paid 0.009999 |
-| Caps | paid ≤ the merchant's limit | payment above the cap |
-| Expired quote | paid inside the request's time window | paid after 30 min; paid before the order |
-| Duplicate order | one transaction settles one order only | same hash reused |
-| Refund | same token back from the merchant to the original payer, at most what was paid | valid, too large, wrong recipient |
-
-The verifier is a public reference for these checks, so anyone (judges, merchants, auditors) can confirm a payment independently. It is not the code of Effisend's private backend.
-
----
 ## Quick reference
 
 | Feature | How to use it in Effisend | What happens on Robinhood Chain |

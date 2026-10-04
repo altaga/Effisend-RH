@@ -1,0 +1,23 @@
+{
+ "chainId": 4663,
+ "receipt": {
+  "transactionHash": "0x06c2a265a34f4df6c743208f2829e58ffa89b69a96d53de529689ee4fba8b604",
+  "blockNumber": "0x4a645b0",
+  "status": "0x1",
+  "from": "0xa80bebca505725c04f7fa83d47d43b77b0275578",
+  "to": "0x5fc5360d0400a0fd4f2af552add042d716f1d168",
+  "logs": [
+   {
+    "address": "0x5fc5360d0400a0fd4f2af552add042d716f1d168",
+    "topics": [
+     "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+     "0x000000000000000000000000a80bebca505725c04f7fa83d47d43b77b0275578",
+     "0x000000000000000000000000afdd6f1608f20481ad8376ab36b5080b2ad27456"
+    ],
+    "data": "0x000000000000000000000000000000000000000000000000000000000000270f",
+    "logIndex": "0x58"
+   }
+  ]
+ },
+ "blockTimestamp": 1790921293
+}

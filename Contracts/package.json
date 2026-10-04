@@ -14,6 +14,6 @@
   },
   "devDependencies": {
     "ethers": "6.17.0",
-    "hardhat": "2.29.1"
+    "hardhat": "3.18.1"
   }
 }

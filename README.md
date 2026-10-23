@@ -3,6 +3,8 @@
 > **A selfie and a PIN become USDG paid on Robinhood Chain.** No card, no seed phrase, no app to install.
 > **And now any wallet can pay with one free signature, settled by a verified smart contract.**
 
+Effisend is a wallet you unlock with your face, built for visitors and merchants at Tokyo Dome City. It already took real stablecoin sales at a Pudgy Penguins pop-up shop. On Robinhood Chain, every payment is in **USDG** and confirms in about 0.1 seconds. **DeSmond**, an AI assistant inside the app, runs it all by chat in any language.
+
 **Live app:** https://effisend-tdc.expo.app · **Checkout contract:** [`0x97a3…80F4`](https://robin.etherscan.io/address/0x97a394a57d9Cb523CAAFa2482215e86908b780F4) · [Face ID](#1-face-id-checkout) · [Pay](#2-robinhood-pay) · [Order](#3-robinhood-order) · [**Smart contract**](#4-smart-contract-checkout) · [Wallet](#5-wallet-swap-bridge-and-card-top-ups) · [Effi NFT](#6-effi-nft) · [Traction](#real-world-traction-pudgy-penguins-pop-up)
 
 ## At a glance
@@ -29,6 +31,8 @@
 
 ## 1. Face ID checkout
 
+The customer pays at the counter with their face. The merchant types the amount, the customer takes a selfie, picks USDG on Robinhood and enters their PIN. Their Effisend wallet pays the merchant on-chain. A liveness check rejects photos of a screen or printed faces.
+
 ![Charge options including Pay with USDG on Robinhood, face verification, Payment Completed](App/screenshots/3_faceid_charge_usdg.jpg)
 
 ```mermaid
@@ -44,6 +48,8 @@ flowchart LR
 ---
 
 ## 2. Robinhood Pay
+
+The merchant asks DeSmond for a payment QR. Anyone can pay it from any wallet by sending USDG to the address shown. The app watches Robinhood Chain and marks the card as paid by itself, with no "I paid" button.
 
 ![Robinhood Pay QR waiting, Payment Confirmed, DeSmond answering the USDG balance](App/screenshots/2_robinhood_pay_desmond.jpg)
 
@@ -65,55 +71,78 @@ flowchart LR
   <img src="App/screenshots/7_robinhood_order_payment_confirmed.jpg" alt="Robinhood Order card showing Payment Confirmed, 0.01 USDG paid to the point of sale" height="512">
 </p>
 
-Same counter, now enforced by a contract: the QR opens by itself, the payer signs once and pays no gas.
+Robinhood Pay trusts the app to notice a transfer. **Robinhood Order lets a smart contract enforce the payment instead.**
+
+1. The merchant tells DeSmond *"Robinhood Order 5 USD"*. A WalletConnect QR opens by itself.
+2. The customer scans it with **their own wallet** (any wallet, no Effisend account) and approves one signature. Signing is free: it is a message, not a transaction.
+3. Effisend's relayer sends the transaction and pays the gas. The Checkout contract takes exactly 5 USDG from the customer and pays the merchant.
+4. The card turns into *Payment Confirmed*.
 
 ```mermaid
 flowchart LR
-  A["Tell DeSmond<br/>Robinhood Order 5 USD"] --> B["WalletConnect QR<br/>opens by itself"]
-  B --> C["Payer signs once<br/>(free)"]
-  C --> D{{"Relayer calls pay()<br/>Checkout contract"}}
-  D --> E["Merchant receives 5 USDG<br/>Payment Confirmed"]
+  A["Merchant: Robinhood Order 5 USD"] --> B["QR opens by itself"]
+  B --> C["Customer signs once<br/>in their own wallet<br/>free, no gas"]
+  C --> D["Relayer sends the payment<br/>and pays the gas"]
+  D --> E["Checkout contract<br/>pays the merchant 5 USDG"]
+  E --> F["Payment Confirmed"]
 ```
 
-**Proof:** [`0x0e94…7ba1`](https://robin.etherscan.io/tx/0x0e9461c269c192694de70e099c76b615ffab5448147fa1a86e35bd7a60737ba1), 0.01 USDG from an external wallet to the point of sale (2026-10-23). The payer's ETH balance and nonce were identical before, during and after the block.
+**Proof:** [`0x0e94…7ba1`](https://robin.etherscan.io/tx/0x0e9461c269c192694de70e099c76b615ffab5448147fa1a86e35bd7a60737ba1), 0.01 USDG from an external wallet to the point of sale (2026-10-23). The customer's wallet spent no gas: its ETH balance and transaction count were the same before and after.
 
 ---
 
 ## 4. Smart contract: Checkout
 
-**One contract settles an order in USDG: exact amount, one payment per order, hard expiry, zero custody.**
+**One contract settles each order in USDG: the exact amount, once, before it expires, without ever holding the money.**
+
+**Why a contract?** An app that watches the chain can only notice a payment after it happened. It cannot stop someone paying too little, paying twice or paying a stale quote. The Checkout contract makes those mistakes impossible, and anyone can check its rules and its payments on-chain.
+
+**How it works, in plain words**
+
+- **The order.** Effisend's backend writes the order (who gets paid, how much, until when) and signs it with a dedicated key. Nothing goes on-chain yet, so creating an order is free.
+- **The customer's signature.** The customer signs a USDG *transfer authorization* (the EIP-3009 standard built into USDG). It allows the contract to take that exact amount, for that exact order, only once.
+- **The payment.** A relayer sends one transaction with both signatures and pays the gas. The contract checks everything, takes the USDG, pays the merchant and records the order as paid. If any check fails, nothing moves.
 
 ```mermaid
 flowchart LR
-  O["Order<br/>signed by the operator<br/>(EIP-712)"] --> P{{"pay()<br/>one transaction"}}
-  S["Payer signature<br/>USDG EIP-3009<br/>bound to this order"] --> P
-  P --> U["USDG pulled<br/>from the payer"]
-  U --> M["Merchant paid<br/>(+ optional splits)"]
-  M --> Z["Paid event<br/>contract holds 0 USDG"]
+  O["Order signed by Effisend<br/>merchant, amount, expiry"] --> P["Checkout contract<br/>checks both signatures"]
+  S["Customer signature<br/>USDG authorization<br/>for this order only"] --> P
+  P --> U["Takes exact USDG<br/>from the customer"]
+  U --> M["Pays the merchant<br/>optional revenue split"]
+  M --> Z["Order marked paid<br/>contract keeps 0 USDG"]
 ```
 
-| The chain enforces | How |
+| Rule enforced on-chain | What it means |
 |---|---|
-| **Exact amount** | The payer's signature commits to the order's amount, merchant and splits. |
-| **One payment per order** | `paid(id)` flips once; a replay reverts. |
-| **Hard expiry** | 30 minutes, set in the operator-signed order. |
-| **No custody** | Every payment ends with 0 USDG in the contract. Any failure reverts everything. |
-| **No gas for the payer** | USDG's EIP-3009 authorization plus a relayer. |
-| **Revenue splits** | Up to 5 shares, paid in the same transaction. Built and tested, off in the app for now. |
+| **Exact amount** | The customer signs for one amount, one merchant and one order. Changing any of them invalidates the signature. |
+| **Paid once** | Each order can be paid only once. A second attempt is rejected. |
+| **Expires** | An order is valid for 30 minutes. After that the contract refuses it. |
+| **Never holds funds** | The money passes through in the same transaction. The contract always ends with 0 USDG. |
+| **No gas for the customer** | The customer only signs. The relayer pays the network fee (0.0000028 ETH in the payment below). |
+| **Revenue splits** | One order can pay up to 5 partners a percentage in the same transaction. Built and tested, not switched on in the app yet. |
+
+**The real payment on Blockscout.** Effisend's relayer called `pay` on the contract. Under *Tokens transferred*, 0.01 USDG goes from the customer to the contract and from the contract to the merchant, in one transaction confirmed in under 0.1 s.
 
 ![Blockscout: pay() succeeded, USDG from the payer to the contract and from the contract to the merchant, gas fee 0.0000028 ETH](App/screenshots/8_checkout_payment_blockscout.jpg)
 
+**The contract is verified.** Sourcify compiled the source in this repo and got the same bytecode that runs on Robinhood Chain (*Exact Match*). Anyone can read exactly what the contract does.
+
 ![Sourcify: Checkout on Robinhood Chain, Exact Match for runtime and creation bytecode](App/screenshots/9_checkout_verified_sourcify.jpg)
 
-| Proof | Where |
+| Proof | Link |
 |---|---|
-| **Contract** | [`0x97a394a57d9Cb523CAAFa2482215e86908b780F4`](https://robin.etherscan.io/address/0x97a394a57d9Cb523CAAFa2482215e86908b780F4) · deployed in [`0x5471…dd21e`](https://robin.etherscan.io/tx/0x5471fc2f9a49b3edac502a66245c179a44669642dcc0d061038453ca7cddd21e) |
-| **Verified** | [Sourcify `exact_match`](https://sourcify.dev/server/v2/contract/4663/0x97a394a57d9Cb523CAAFa2482215e86908b780F4) for runtime and creation bytecode |
-| **Source and tests** | [`Contracts/checkout`](Contracts/checkout/README.md): 18 tests, `npm ci && npm test` |
+| **Contract** | [`0x97a394a57d9Cb523CAAFa2482215e86908b780F4`](https://robin.etherscan.io/address/0x97a394a57d9Cb523CAAFa2482215e86908b780F4), deployed in [`0x5471…dd21e`](https://robin.etherscan.io/tx/0x5471fc2f9a49b3edac502a66245c179a44669642dcc0d061038453ca7cddd21e) |
+| **Payment** | [`0x0e94…7ba1`](https://robin.etherscan.io/tx/0x0e9461c269c192694de70e099c76b615ffab5448147fa1a86e35bd7a60737ba1) |
+| **Verification** | [Sourcify: exact match](https://sourcify.dev/server/v2/contract/4663/0x97a394a57d9Cb523CAAFa2482215e86908b780F4) |
+| **Source and 18 tests** | [`Contracts/checkout`](Contracts/checkout/README.md) |
+
+**Why it matters for Robinhood Chain.** It is Effisend's first contract that settles commerce, not a collectible. It is built on USDG's own payment standard, so any wallet can pay with only USDG and no ETH, and it runs on Robinhood Chain's Arbitrum stack with sub-second blocks.
 
 ---
 
 ## 5. Wallet, swap, bridge and card top-ups
+
+The everyday wallet works on Robinhood Chain: see ETH and USDG, receive with a QR, send with a PIN, swap ETH and USDG, and move USDG to other networks. USDG can also top up a crypto card, for example the MetaMask Card on Linea, just by asking DeSmond.
 
 ![Wallet with USDG on Robinhood, Receive QR on Robinhood, Send 0.01 USDG confirmed with PIN](App/screenshots/1_wallet_receive_send_robinhood.jpg)
 
@@ -133,6 +162,8 @@ flowchart LR
 
 ## 6. Effi NFT
 
+Effi is Effisend's collectible. Visitors scan their wallet at the venue's gacha machine and receive one on Robinhood Chain, which then shows up in the app's Passes tab.
+
 <p align="center">
   <img src="App/screenshots/5_effi_nft_robinhood.jpg" alt="Effi NFT detail on Robinhood: network Robinhood, owned 1, Explorer button" height="512">
 </p>
@@ -150,6 +181,8 @@ flowchart LR
 ---
 
 ## Real-world traction: Pudgy Penguins Pop-Up
+
+Before Robinhood Chain, Effisend ran the checkout of a Pudgy Penguins merchandise shop at Tokyo Dome City. Real customers paid in stablecoins from their own wallets by scanning the counter QR.
 
 ![Pudgy Pop-Up banner with dates, the Effisend and Pudgy Penguins booth, and a customer paying by scanning the counter QR with their own wallet](App/screenshots/6_pudgy_popup_tokyo_dome_city.jpg)
 
@@ -169,12 +202,12 @@ Reconciled from the chains: a payment counts when it reached the point-of-sale w
 
 ```mermaid
 flowchart LR
-  W["Payer's wallet<br/>(WalletConnect)"] -- "1 signature" --> A["Effisend app"]
-  A -- "signed requests" --> B["Backend<br/>Face ID · DeSmond<br/>key custody · LI.FI"]
-  B -- "transactions" --> R[("Robinhood Chain")]
-  B -- "relayer: pay()" --> C{{"Checkout contract"}}
+  W["Customer's own wallet<br/>WalletConnect"] -->|"one signature"| A["Effisend app"]
+  A -->|"signed requests"| B["Effisend backend<br/>Face ID, DeSmond,<br/>encrypted keys, LI.FI"]
+  B -->|"transactions"| R[("Robinhood Chain")]
+  B -->|"relayer"| C["Checkout contract"]
   C --> R
-  A -. "reads first" .-> R
+  A -->|"reads balances first"| R
 ```
 
 - **Custodial by design:** keys are encrypted with KMS and never reach the device.

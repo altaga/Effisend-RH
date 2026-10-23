@@ -1,0 +1,14 @@
+{
+  "name": "effisend-checkout-contract",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "hardhat build",
+    "test": "hardhat test mocha"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^4.0.0",
+    "ethers": "^6.17.0",
+    "hardhat": "^3.20.0"
+  }
+}

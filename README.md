@@ -8,7 +8,7 @@ Effisend is a multichain wallet you unlock with your face, built for visitors of
 
 This repository is the public, minimal companion for the Robinhood Chain hackathon. It contains:
 
-- `Contracts/`: the Effi NFT contract exactly as deployed, with its build script and tests.
+- `Contracts/`: the Effi NFT contract and the **Checkout** contract behind Robinhood Order, each exactly as deployed, with their build scripts and tests.
 - `App/`: screenshots, photos and the public Robinhood Chain configuration the app uses.
 
 The app's source code and its backend are not in this repository.
@@ -24,11 +24,12 @@ The app's source code and its backend are not in this repository.
 7. [Swap, bridge and card top-ups](#4-swap-bridge-and-card-top-ups)
 8. [The Effi NFT on Robinhood](#5-the-effi-nft-on-robinhood)
 9. [DeSmond and analytics](#6-desmond-and-analytics)
-10. [Real-world traction: Pudgy Penguins Pop-Up](#real-world-traction-pudgy-penguins-pop-up)
-11. [Quick reference](#quick-reference)
-12. [Architecture and connected services](#architecture-and-connected-services)
-13. [Contracts](#contracts)
-14. [Security model](#security-model)
+10. [Robinhood Order: orders settled by a smart contract](#7-robinhood-order-orders-settled-by-a-smart-contract)
+11. [Real-world traction: Pudgy Penguins Pop-Up](#real-world-traction-pudgy-penguins-pop-up)
+12. [Quick reference](#quick-reference)
+13. [Architecture and connected services](#architecture-and-connected-services)
+14. [Contracts](#contracts)
+15. [Security model](#security-model)
 
 ---
 
@@ -38,6 +39,7 @@ The app's source code and its backend are not in this repository.
 |---|---|---|
 | **Face ID checkout on Robinhood** | Selfie, then PIN, then USDG paid on Robinhood Chain | [`0x06c2…b604`](https://robin.etherscan.io/tx/0x06c2a265a34f4df6c743208f2829e58ffa89b69a96d53de529689ee4fba8b604) |
 | **Robinhood Pay** | USDG payment QR that confirms itself on-chain | [`0x9461…607a`](https://robin.etherscan.io/tx/0x94611b2590778ac952ef9b365e2aa0c82d4532b51d14ce55776b71e56dea607a) |
+| **Robinhood Order** | A payment order settled by the Checkout smart contract: the payer signs once with any wallet, pays no gas, and the contract pays the merchant in USDG | [`0x0e94…7ba1`](https://robin.etherscan.io/tx/0x0e9461c269c192694de70e099c76b615ffab5448147fa1a86e35bd7a60737ba1) · [contract](https://robin.etherscan.io/address/0x97a394a57d9Cb523CAAFa2482215e86908b780F4) |
 | **Card top-up from Robinhood** | USDG on Robinhood to USDC on Linea in about a second | [`0xc9bd…8a75`](https://robin.etherscan.io/tx/0xc9bdb0d58abc5e118317dd58ce53aacd40db4b8e5c362f8b481e78e51baf8a75) → [`0x3ca8…713e`](https://lineascan.build/tx/0x3ca8e0b83a2fc192741f64669fe91287031cf6b34de408cf91eb209cf234713e) |
 | **Effi NFT on Robinhood** | Contract verified byte for byte against this repo's source | [`0xDDa3…DC97`](https://robin.etherscan.io/address/0xDDa30795FF04677C1c4B58616b7b77503554DC97) |
 | **Real merchant sales** | Pudgy Penguins Pop-Up, Tokyo Dome City: **20 paid orders, $635.67, 14 paying wallets** | [all 20 transactions](#real-world-traction-pudgy-penguins-pop-up) |
@@ -53,7 +55,7 @@ Robinhood Chain is where Effisend's checkout feels instant, and where its dollar
 - **Gas that costs cents.** ETH on Robinhood covers fees. Effisend keeps a small floor so checkouts never stall.
 - **EVM, so zero friction.** Every Effisend wallet works on Robinhood Chain from the moment it is created, with the same address as on every other EVM network.
 
-**Everything Effisend does, it does on Robinhood Chain:** Face ID checkout, Robinhood Pay, wallet (balances, receive, send), swap, bridge, card top-ups, the Effi NFT, DeSmond (the AI agent) and on-chain analytics. Every Robinhood transaction linked in this README was made through the live production app, between Effisend's own wallet and the venue's point-of-sale wallet.
+**Everything Effisend does, it does on Robinhood Chain:** Face ID checkout, Robinhood Pay, Robinhood Order, wallet (balances, receive, send), swap, bridge, card top-ups, the Effi NFT, DeSmond (the AI agent) and on-chain analytics. Every Robinhood transaction linked in this README was made through the live production app, between Effisend's own wallet and the venue's point-of-sale wallet. The one exception is the Robinhood Order payment, which a team-owned external wallet made through WalletConnect (also an internal test).
 
 ---
 
@@ -61,6 +63,7 @@ Robinhood Chain is where Effisend's checkout feels instant, and where its dollar
 
 - **USDG is Effisend's dollar on Robinhood.** Robinhood Chain has no USDC, so whenever a user says "dollars" on Robinhood (a checkout, a Robinhood Pay QR, a card top-up, a bridge), Effisend uses **USDG (Global Dollar)**. Users never have to choose a stablecoin.
 - **Payments that confirm themselves.** Face ID checkouts and Robinhood Pay requests are settled on Robinhood Chain and detected automatically on-chain, with no manual "I paid" step.
+- **A contract that settles commerce in USDG.** Robinhood Order uses USDG's own EIP-3009 authorizations and a verified Checkout contract, so a payer with only USDG (no ETH) can pay any merchant from any wallet. See [Robinhood Order](#7-robinhood-order-orders-settled-by-a-smart-contract).
 - **A source of funds for the rest of the wallet.** USDG and ETH on Robinhood can be swapped, bridged to other networks, or used to top up a crypto card (for example the MetaMask Card on Linea).
 - **The Effi collectible.** The Effi NFT is deployed on Robinhood Chain, and visitors can receive one there from the venue's gacha.
 - **One address for every EVM network.** The same EVM address the user gets at sign-up works on Robinhood Chain from the first moment.
@@ -246,6 +249,89 @@ sequenceDiagram
 
 ---
 
+## 7. Robinhood Order: orders settled by a smart contract
+
+![Robinhood Order card showing Payment Confirmed, 0.01 USDG paid to the point of sale](App/screenshots/7_robinhood_order_payment_confirmed.jpg)
+
+Robinhood Pay watches an address and notices when money arrives. **Robinhood Order** is the next step: the payment is enforced by a smart contract, so the amount, the merchant, the expiry and the one-payment-per-order rule are checked on-chain, not matched afterwards by the app.
+
+**How to use it**
+
+1. In the Agent tab, tell DeSmond *"Robinhood Order 5 USD"* (or *"RH Order 5"*). The word **Order** is what separates it from Robinhood Pay. Plain dollars on Robinhood always mean **USDG**.
+2. DeSmond answers in one line and the app shows an **order card** with the amount and a **WalletConnect QR** that opens by itself. The order is valid for 30 minutes and each QR for 5.
+3. The payer scans the QR with any wallet that supports Robinhood Chain. The payment always comes from another wallet, never from the device showing the QR. They approve one connection.
+4. The wallet shows one signature request. It is an off-chain EIP-712 message that lets the Checkout contract collect exactly that amount of USDG for this order only. Signing costs nothing.
+5. A relayer sends the transaction and pays the gas. The contract collects the USDG, pays the merchant and records the payment in one transaction, and the card switches to **Payment Confirmed**.
+
+```mermaid
+sequenceDiagram
+  actor M as Merchant
+  participant D as DeSmond
+  participant A as Effisend app
+  participant S as Order service
+  actor P as Payer (any wallet)
+  participant L as Relayer
+  participant C as Checkout contract
+  participant U as USDG
+  M->>D: "Robinhood Order 5 USD"
+  D->>S: create order (merchant, 5 USDG)
+  S-->>D: order signed by the operator, valid 30 min
+  D-->>A: order card
+  A-->>M: card with a WalletConnect QR
+  P->>A: scan the QR and approve the connection
+  A->>S: prepare the payment for this payer
+  S-->>A: typed data to sign
+  A-->>P: signature request
+  P-->>A: signature (off-chain, free)
+  A->>S: submit the order and the signature
+  S->>L: send pay()
+  L->>C: pay(order, operator signature, payer signature)
+  C->>U: receiveWithAuthorization(payer, contract, 5 USDG)
+  U-->>C: 5 USDG
+  C->>M: 5 USDG to the merchant
+  A-->>M: "Payment Confirmed" + transaction link
+```
+
+**What the contract does** (`Contracts/checkout/`)
+
+| Piece | Behaviour |
+|---|---|
+| **Order** | `{id, merchant, amount, expiry, splits}` signed off-chain by the **operator** with EIP-712. Nothing is on-chain until it is paid. |
+| **Payer authorization** | A USDG `ReceiveWithAuthorization` (EIP-3009) to the contract. Its nonce is `keccak256(orderHash, payer)`, so the signature is valid for that exact order only: merchant, amount, splits and expiry. |
+| **`pay()`** | Anyone can call it (the relayer does). It checks the order and its expiry, verifies the operator signature, marks the order paid, pulls the USDG, checks that its balance grew by exactly the amount, pays the splits and the merchant, and emits `Paid`. |
+| **No custody** | Every payment ends with zero USDG in the contract, and a failure at any step reverts everything. |
+| **Operator** | One signing key, changed only by a two-step transfer so a wrong address cannot lock the contract. |
+| **Splits** | An order can carry up to 5 shares (`recipient`, basis points, total at most 100%) paid in the same transaction, the rest going to the merchant. **Implemented and tested; switched off in the app for now.** |
+
+**Why a smart contract**
+
+- **Rules the chain enforces.** A watcher can only observe: it cannot stop an underpayment, a double payment or a payment after the quote expired. The contract makes each of those impossible: the exact amount, one payment per order id and a hard expiry.
+- **No gas for the payer.** Robinhood Chain has no USDC and gas is ETH. With EIP-3009 and a relayer, a customer who only holds USDG can still pay. In the payment below the relayer paid 0.0000028 ETH and the payer's ETH balance and nonce were identical before, during and after the block.
+- **Any wallet, no Effisend account.** WalletConnect lets customers outside Effisend's custodial wallet pay, which Face ID checkout cannot do.
+- **Anyone can audit it.** The contract is verified, `paid(id)` and the `Paid` event are public, and the same order can never be paid twice.
+- **Revenue sharing without bookkeeping.** Splits pay partners in the same transaction, the way the Effi contract hands out tokens with no off-chain bookkeeping. They are not used in production yet.
+
+**Why it matters for Effisend on Robinhood Chain**
+
+- Until now Effisend's contract on Robinhood Chain was a collectible. **Checkout is the first contract that settles commerce** in USDG, so payments rest on code the chain can verify instead of the app's own records.
+- It builds on what the chain provides: USDG's native EIP-3009, ~0.1 s blocks for instant confirmation, and gas of about 0.0000028 ETH for the whole payment. Robinhood Chain runs the **Arbitrum stack**: the `ArbSys` precompile at `0x…64` answers `arbChainID() = 4663` and `arbOSVersion() = 0x74` (ArbOS 61), so this is a smart contract deployed and verified on an Arbitrum chain, using a stablecoin standard instead of a custom token.
+- Only the USDG address and the operator are constructor arguments, so nothing in the contract is specific to one chain.
+- It turns the demo into a story anyone can check: one verified contract, one real payment through the live app, and a payer who spent no gas.
+
+**On-chain proof**
+
+- Checkout contract [`0x97a3…80F4`](https://robin.etherscan.io/address/0x97a394a57d9Cb523CAAFa2482215e86908b780F4), deployed in [`0x5471…dd21e`](https://robin.etherscan.io/tx/0x5471fc2f9a49b3edac502a66245c179a44669642dcc0d061038453ca7cddd21e) and verified on Sourcify (`exact_match`, runtime and creation).
+- Payment [`0x0e94…7ba1`](https://robin.etherscan.io/tx/0x0e9461c269c192694de70e099c76b615ffab5448147fa1a86e35bd7a60737ba1), block 95842371 (2026-10-23): 0.01 USDG from a team-owned external wallet to the point of sale, sent by the relayer (139,864 gas). The transaction has exactly four logs: `AuthorizationUsed`, USDG payer to contract, USDG contract to merchant, and `Paid`. The contract ends with 0 USDG.
+
+**Limits, stated plainly**
+
+- The Robinhood Order payment above is an **internal test**, not a customer purchase.
+- The contract is **not externally audited**.
+- One operator key signs orders. If it were compromised, forged orders could be offered to payers, but every payment still needs the payer's own signature for that exact order.
+- Real USDG silently ignores a replayed or cancelled authorization instead of reverting (see [`Contracts/checkout`](Contracts/checkout/README.md)), which is why `pay()` checks its balance grew by exactly the amount.
+
+---
+
 ## Real-world traction: Pudgy Penguins Pop-Up
 
 ![Pudgy Pop-Up banner with dates, the Effisend and Pudgy Penguins booth, and a customer paying by scanning the counter QR with their own wallet](App/screenshots/6_pudgy_popup_tokyo_dome_city.jpg)
@@ -315,6 +401,7 @@ Not counted: setup and test transfers under $5 (the morning of 9/24 and on 9/28)
 | **Swap** | Wallet, then *Swap*: *Robinhood*, then ETH ⇄ USDG. | The swap is routed through LI.FI. |
 | **Bridge** | Wallet, then *Bridge*: from *Robinhood (USDG)*. | USDG leaves through LI.FI, with Layerswap as fallback. |
 | **Robinhood Pay** | Agent tab: *"Robinhood Pay 5 USD"*. | A USDG payment QR that confirms itself on-chain. |
+| **Robinhood Order** | Agent tab: *"Robinhood Order 5 USD"*. | A WalletConnect QR; the payer signs once, the Checkout contract settles the order in USDG and a relayer pays the gas. |
 | **Face ID checkout** | Charge: amount, the customer's selfie, *Pay with USDG* (or ETH), then their PIN. | The customer's wallet pays the merchant. |
 | **Card top-up** | Agent tab: *"Top up MetaMask card with 5 USD from Robinhood"*. | USDG is bridged to the card's token and network. |
 | **Effi NFT** | Venue gacha, then the Passes tab. | `distribute(to)` on the Effi contract. |
@@ -356,7 +443,7 @@ flowchart TB
     LS["Layerswap<br/>(fallback)"]
   end
 
-  RH[("Robinhood Chain<br/>ETH · USDG · WETH · Effi NFT")]
+  RH[("Robinhood Chain<br/>ETH · USDG · WETH · Effi NFT · Checkout")]
 
   Device -- "reads first" --> Public
   Device -- "HMAC-signed requests" --> API
@@ -375,6 +462,8 @@ flowchart TB
 | **Robinhood Chain public RPCs** (globalstake, publicnode, ordofi, official, Pocket) | Balances, contract reads, transaction broadcast | Reads run on the device first; the backend is the fallback. Transactions are broadcast by the backend. |
 | **Robinhood Chain explorer** (robin.etherscan.io) | Transaction and address links | Device |
 | **USDG (Global Dollar)** `0x5fc5…d168` | The dollar for Pay, checkout, top-ups and bridges | On-chain token |
+| **Checkout contract** `0x97a3…80F4` | Settles Robinhood Order payments in USDG | On-chain, called by a relayer |
+| **WalletConnect** | Lets the payer's own wallet sign an order | Device (the QR opens in the app) |
 | **LI.FI** (routes through bridges such as Across and Relay) | Swaps, bridges and card top-ups from Robinhood | Backend |
 | **Layerswap** | Bridge fallback for Robinhood routes | Backend |
 | **DefiLlama and CoinGecko** | USD prices for ETH, USDG and WETH | Device first; the backend is the last resort |
@@ -411,6 +500,22 @@ node test.cjs                 # local Hardhat network: mint, distribute, permiss
 
 The tests run on Hardhat 3's in-memory EVM, and `npm audit` reports no known vulnerabilities. The contract source, solc 0.8.28 and OpenZeppelin 5.6.1 are exactly the ones used for the deployment.
 
+### Checkout (Robinhood Order)
+
+`Contracts/checkout/contracts/Checkout.sol` settles an operator-signed order in USDG with the payer's EIP-3009 authorization. The logic and the reasons behind it are in [Robinhood Order](#7-robinhood-order-orders-settled-by-a-smart-contract); its own guide is [`Contracts/checkout/README.md`](Contracts/checkout/README.md).
+
+| Network | Address | Explorer |
+|---|---|---|
+| **Robinhood Chain** (4663) | `0x97a394a57d9Cb523CAAFa2482215e86908b780F4` | [robin.etherscan.io](https://robin.etherscan.io/address/0x97a394a57d9Cb523CAAFa2482215e86908b780F4) |
+
+The deployed bytecode matches this source, verified on Sourcify with `exact_match` for runtime and creation (solc 0.8.28, optimizer 200 runs, `evmVersion: cancun`). It has **not** been audited by a third party.
+
+```bash
+cd Contracts/checkout
+npm ci
+npm test      # 18 tests on Hardhat 3's in-memory EVM
+```
+
 ---
 
 ## Security model
@@ -419,6 +524,7 @@ The tests run on Hardhat 3's in-memory EVM, and `npm audit` reports no known vul
 - **Face ID with anti-spoofing.** A liveness check runs before every face match. Photos of a screen or printed faces are rejected.
 - **PIN** to authorise checkouts (when the customer set one) and sends from the wallet.
 - **Signed API.** Every request from the app is HMAC-signed.
+- **Order payments.** A Robinhood Order is signed by an operator key and bound to the payer's own signature for that exact order. The Checkout contract never keeps funds, rejects replays and expired orders, and is not externally audited.
 - **Guarded card top-ups.** A top-up through DeSmond runs at most once per message, and only with the source network and amount the user actually wrote. DeSmond never retries it on its own with other networks or amounts.
 
 ---
@@ -432,6 +538,7 @@ Effisend-RH/
 │   └── screenshots/           # UI captures from the live app + pop-up photos (JPEG)
 ├── Contracts/
 │   ├── contracts/EffisendNFT.sol
+│   ├── checkout/              # Checkout contract (Robinhood Order): source, tests, verification input
 │   ├── compile.cjs  test.cjs  hardhat.config.js
 │   ├── package.json  package-lock.json
 │   └── deployments.json       # addresses on every chain

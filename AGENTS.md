@@ -7,6 +7,7 @@ Instructions for AI coding agents working in this repository. Humans should read
 - This is the **public, minimal** companion of Effisend for the Robinhood Chain hackathon.
 - It contains:
   - the Effi NFT contract project (`Contracts/`): source and compiler settings unchanged from production, test tooling on Hardhat 3;
+  - the Checkout contract project (`Contracts/checkout/`): the contract behind Robinhood Order, source as deployed, 18 tests on Hardhat 3;
   - the public Robinhood Chain configuration (`App/robinhood-chain.json`);
   - UI screenshots (`App/screenshots/`);
   - documentation.
@@ -25,6 +26,8 @@ Never guess these values. Use them exactly as written.
 | USDG (Global Dollar) | `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168` (6 decimals) |
 | WETH | `0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73` (18 decimals) |
 | Effi NFT (EffisendNFT) | `0xDDa30795FF04677C1c4B58616b7b77503554DC97`: same address on Robinhood (4663), Arbitrum One (42161), Arc (5042), Base (8453), Polygon (137), Avalanche (43114) and Monad (143) |
+| Checkout (Robinhood Order) | `0x97a394a57d9Cb523CAAFa2482215e86908b780F4` on Robinhood only; deployed in tx `0x5471fc2f…dd21e` (block 95745829); operator `0xF4f830b19421B818e03e1005D7ba4b987c3f3d57` |
+| Relayer (pays the gas of Order payments) | `0x7ea55aaa1A614d22AE4548AEF015174FEDb36e34` |
 | Public RPCs | listed in `App/robinhood-chain.json` (`publicRpcs`); all answer `eth_chainId = 0x1237` (4663) |
 
 Domain rules that the docs and any example must respect:
@@ -42,13 +45,18 @@ Domain rules that the docs and any example must respect:
 | Card top-up | Robinhood `0xc9bdb0d5…8a75` → Linea `0x3ca8e0b8…713e` | explorers |
 | Effi delivered on Robinhood | token #0 via `distribute()` | tx `0x470f2546…2d82` |
 | Pudgy Penguins Pop-Up (2026-09-24 → 10-02, closed 9/26-27) | 20 orders · $635.67 · 14 distinct paying wallets (one paid 7) · Solana 11/$420.91, Ethereum 6/$149.90, Base 3/$64.86 · 18 USDC + 2 USDT | the 20 hashes in README |
+| Robinhood Order payment | 0.01 USDG, team-owned external wallet → point of sale through WalletConnect; gas paid by the relayer (139,864 gas, 0.0000028 ETH); 4 logs; payer's ETH balance and nonce unchanged across the block | tx `0x0e9461c2…7ba1` (block 95842371) |
+| Checkout verification | Sourcify `exact_match` for runtime and creation bytecode | `https://sourcify.dev/server/v2/contract/4663/0x97a394a57d9Cb523CAAFa2482215e86908b780F4` |
+| Robinhood Chain is an Arbitrum chain | `ArbSys` precompile `0x…64`: `arbChainID()` = 4663, `arbOSVersion()` = `0x74` (ArbOS 61) | `eth_call` to `0x0000000000000000000000000000000000000064` with `0xd127f54a` and `0x051038f2` |
 | Robinhood Chain in the pop-up | **0 orders** | on-chain |
 | Point-of-sale wallet (EVM) | `0xAfDd6F1608F20481aD8376AB36B5080B2Ad27456` | public |
 | Effisend test wallet (EVM) | `0xa80BEBca505725C04f7fa83d47D43b77B0275578` (owner's own; not a customer) | public |
 
 Rules:
 
-- The Robinhood and Arbitrum payments shown are **internal test payments**. Never present them as customer purchases.
+- The Robinhood and Arbitrum payments shown, **including the Robinhood Order payment**, are **internal test payments**. Never present them as customer purchases.
+- Do not describe splits as live: the Checkout contract supports and tests them, but the app creates every order without splits.
+- The Checkout contract is **not externally audited**; never call it audited or production-hardened.
 - The pop-up's third network is **Base, not BNB**.
 - Do not publish a checkout success rate: attempts that never reached the chain are not measurable on-chain.
 - Do not list customers' wallet addresses in prose (the explorer links are enough).
@@ -69,6 +77,19 @@ node test.cjs                 # local Hardhat network; prints "ALL TESTS PASSED"
 - The deployed runtime bytecode on Robinhood Chain matches the source compiled with **solc 0.8.28, optimizer on with 200 runs, `evmVersion: cancun`**, byte for byte. Any change to `contracts/EffisendNFT.sol`, the compiler or its settings breaks that match. Do not edit the contract unless the task is explicitly about a new deployment, and say so when you do.
 - `build/`, `artifacts/`, `cache/` and `node_modules/` are gitignored; never commit them.
 - `package.json` is `"type": "module"` because Hardhat 3 needs an ESM `hardhat.config.js`; the `.cjs` scripts stay CommonJS. `overrides.tmp` pins a patched `tmp` under `solc` (it is only used by solc's CLI, not by `compile.cjs`). Keep `npm audit` at 0 vulnerabilities, and never bump `solc` or `@openzeppelin/contracts`: that would change the bytecode.
+
+Checkout contract (`Contracts/checkout/`):
+
+```bash
+cd Contracts/checkout
+npm ci                        # exact versions from package-lock.json
+npm test                      # Hardhat 3 in-memory EVM; prints "18 passing"
+```
+
+- `contracts/Checkout.sol` is **byte-identical to the source verified on Sourcify** (solc 0.8.28, optimizer on with 200 runs, `evmVersion: cancun`). Its comments are in Spanish and must stay: any edit, even a comment, changes the metadata hash in the deployed bytecode and the `exact_match` no longer holds. Do not edit it unless the task is a new deployment, and say so.
+- `contracts/MockUSDG.sol` is a test double (not deployed). It reproduces real USDG: replaying or cancelling an EIP-3009 authorization does **not** revert, it silently does nothing, so `pay()` checks its balance grew by exactly the order amount.
+- `verify/standard-input.json` is the standard JSON input used to verify the contract; keep it in sync with `Checkout.sol`.
+- Behaviour: orders are signed off-chain by the operator (EIP-712); the payer signs a USDG `ReceiveWithAuthorization` with `nonce = keccak256(orderHash, payer)`; anyone calls `pay(order, operatorSignature, authorization)`; the contract never keeps funds; at most 5 splits (basis points, total ≤ 100%); operator changes are two-step; `rescueTokens` is operator-only.
 
 Contract behaviour (`EffisendNFT`, ERC-721 on OpenZeppelin 5, `Ownable`):
 
@@ -100,7 +121,7 @@ Never send transactions, sign messages or use private keys from this repository.
   - Keep every statement verifiable from this repo, the chain or the live app.
   - When you change behaviour descriptions, keep the Mermaid diagrams consistent with the tables.
 - Mermaid must render on GitHub (Mermaid 11). Quote labels that contain punctuation (`A["text (x)"]`), use `<br/>` for line breaks, and avoid `;` inside messages. Render-check the diagrams before committing.
-- Screenshots live in `App/screenshots/` as JPEGs under 200 KB each: 4 compositions of 3 phone screens (1620 px wide) plus one single screen (`5_effi_nft_robinhood.jpg`, 620 px wide) and the pop-up photo strip (`6_pudgy_popup_tokyo_dome_city.jpg`, faces of customers excluded, no EXIF). README sections are organised by feature, each with its screenshot, its Mermaid diagram and its on-chain proof; keep that structure. Reference them with relative paths. Do not add screenshots that show secrets, seed phrases, PIN entry with digits visible, or personal data beyond public addresses.
+- Screenshots live in `App/screenshots/` as JPEGs under 200 KB each: 4 compositions of 3 phone screens (1620 px wide) plus two single screens (`5_effi_nft_robinhood.jpg` and `7_robinhood_order_payment_confirmed.jpg`, 620 px wide) and the pop-up photo strip (`6_pudgy_popup_tokyo_dome_city.jpg`, faces of customers excluded, no EXIF). README sections are organised by feature, each with its screenshot, its Mermaid diagram and its on-chain proof; keep that structure. Reference them with relative paths. Do not add screenshots that show secrets, seed phrases, PIN entry with digits visible, or personal data beyond public addresses.
 - Write in English. Use the product names exactly as written: "Effisend", "DeSmond", "Robinhood Chain", "USDG", "Effi", "LI.FI", "Layerswap".
 
 ## 7. Hard rules
@@ -115,12 +136,13 @@ Never send transactions, sign messages or use private keys from this repository.
 
 ```
 App/robinhood-chain.json       public chain config (RPCs, tokens, explorer, Effi address)
-App/screenshots/*.jpg          UI captures from the live app (JPEG, 1620 px wide)
+App/screenshots/*.jpg          UI captures from the live app (JPEG, 1620 px wide; 7_robinhood_order_payment_confirmed.jpg is a single screen, 620 px)
 Contracts/contracts/EffisendNFT.sol
 Contracts/compile.cjs          solc build -> build/EffisendNFT.json (use EVM=cancun)
 Contracts/test.cjs             Hardhat in-memory tests
 Contracts/hardhat.config.js    Hardhat 3 (ESM), in-memory EVM for tests, hardfork cancun
 Contracts/deployments.json     addresses + explorers on every chain
+Contracts/checkout/            Checkout contract (Robinhood Order): contracts/, test/, verify/standard-input.json, README.md
 README.md                      usage docs for humans
 AGENTS.md                      this file
 LICENSE                        MIT

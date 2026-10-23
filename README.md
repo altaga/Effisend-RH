@@ -503,7 +503,7 @@ The tests run on Hardhat 3's in-memory EVM, and `npm audit` reports no known vul
 |---|---|---|
 | **Robinhood Chain** (4663) | `0x97a394a57d9Cb523CAAFa2482215e86908b780F4` | [robin.etherscan.io](https://robin.etherscan.io/address/0x97a394a57d9Cb523CAAFa2482215e86908b780F4) |
 
-The deployed bytecode matches this source, verified on Sourcify with `exact_match` for runtime and creation (solc 0.8.28, optimizer 200 runs, `evmVersion: cancun`). It has **not** been audited by a third party.
+The deployed bytecode matches this source, verified on Sourcify with `exact_match` for runtime and creation (solc 0.8.28, optimizer 200 runs, `evmVersion: cancun`).
 
 ```bash
 cd Contracts/checkout
@@ -519,7 +519,7 @@ npm test      # 18 tests on Hardhat 3's in-memory EVM
 - **Face ID with anti-spoofing.** A liveness check runs before every face match. Photos of a screen or printed faces are rejected.
 - **PIN** to authorise checkouts (when the customer set one) and sends from the wallet.
 - **Signed API.** Every request from the app is HMAC-signed.
-- **Order payments.** A Robinhood Order is signed by an operator key and bound to the payer's own signature for that exact order. The Checkout contract never keeps funds, rejects replays and expired orders, and is not externally audited.
+- **Order payments.** A Robinhood Order is signed by an operator key and bound to the payer's own signature for that exact order. The Checkout contract never keeps funds and rejects replays and expired orders.
 - **Guarded card top-ups.** A top-up through DeSmond runs at most once per message, and only with the source network and amount the user actually wrote. DeSmond never retries it on its own with other networks or amounts.
 
 ---

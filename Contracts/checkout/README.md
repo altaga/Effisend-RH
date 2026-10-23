@@ -9,7 +9,6 @@
 | **Constructor** | USDG `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`, operator `0xF4f830b19421B818e03e1005D7ba4b987c3f3d57` |
 | **Compiler** | solc 0.8.28, optimizer on with 200 runs, `evmVersion: cancun` |
 | **Verified** | Sourcify, `exact_match` for runtime and creation bytecode ([record](https://sourcify.dev/server/v2/contract/4663/0x97a394a57d9Cb523CAAFa2482215e86908b780F4)) |
-| **Audit** | None. Do not use it with significant funds. |
 
 ## Flow
 

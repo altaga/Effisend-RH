@@ -56,7 +56,7 @@ Rules:
 
 - The Robinhood and Arbitrum payments shown, **including the Robinhood Order payment**, are **internal test payments**. Never present them as customer purchases.
 - Do not describe splits as live: the Checkout contract supports and tests them, but the app creates every order without splits.
-- The Checkout contract is **not externally audited**; never call it audited or production-hardened.
+- Never claim the Checkout contract has been audited, and do not call it production-hardened.
 - The pop-up's third network is **Base, not BNB**.
 - Do not publish a checkout success rate: attempts that never reached the chain are not measurable on-chain.
 - Do not list customers' wallet addresses in prose (the explorer links are enough).

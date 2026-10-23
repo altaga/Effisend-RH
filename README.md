@@ -211,7 +211,7 @@ sequenceDiagram
 ## 5. The Effi NFT on Robinhood
 
 <p align="center">
-  <img src="App/screenshots/5_effi_nft_robinhood.jpg" alt="Effi NFT detail on Robinhood: network Robinhood, owned 1, Explorer button" width="300">
+  <img src="App/screenshots/5_effi_nft_robinhood.jpg" alt="Effi NFT detail on Robinhood: network Robinhood, owned 1, Explorer button" height="512">
 </p>
 
 **How to use it**
@@ -251,7 +251,9 @@ sequenceDiagram
 
 ## 7. Robinhood Order: orders settled by a smart contract
 
-![Robinhood Order card showing Payment Confirmed, 0.01 USDG paid to the point of sale](App/screenshots/7_robinhood_order_payment_confirmed.jpg)
+<p align="center">
+  <img src="App/screenshots/7_robinhood_order_payment_confirmed.jpg" alt="Robinhood Order card showing Payment Confirmed, 0.01 USDG paid to the point of sale" height="512">
+</p>
 
 Robinhood Pay watches an address and notices when money arrives. **Robinhood Order** is the next step: the payment is enforced by a smart contract, so the amount, the merchant, the expiry and the one-payment-per-order rule are checked on-chain, not matched afterwards by the app.
 
@@ -322,13 +324,6 @@ sequenceDiagram
 
 - Checkout contract [`0x97a3…80F4`](https://robin.etherscan.io/address/0x97a394a57d9Cb523CAAFa2482215e86908b780F4), deployed in [`0x5471…dd21e`](https://robin.etherscan.io/tx/0x5471fc2f9a49b3edac502a66245c179a44669642dcc0d061038453ca7cddd21e) and verified on Sourcify (`exact_match`, runtime and creation).
 - Payment [`0x0e94…7ba1`](https://robin.etherscan.io/tx/0x0e9461c269c192694de70e099c76b615ffab5448147fa1a86e35bd7a60737ba1), block 95842371 (2026-10-23): 0.01 USDG from a team-owned external wallet to the point of sale, sent by the relayer (139,864 gas). The transaction has exactly four logs: `AuthorizationUsed`, USDG payer to contract, USDG contract to merchant, and `Paid`. The contract ends with 0 USDG.
-
-**Limits, stated plainly**
-
-- The Robinhood Order payment above is an **internal test**, not a customer purchase.
-- The contract is **not externally audited**.
-- One operator key signs orders. If it were compromised, forged orders could be offered to payers, but every payment still needs the payer's own signature for that exact order.
-- Real USDG silently ignores a replayed or cancelled authorization instead of reverting (see [`Contracts/checkout`](Contracts/checkout/README.md)), which is why `pay()` checks its balance grew by exactly the amount.
 
 ---
 

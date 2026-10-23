@@ -142,7 +142,7 @@ sequenceDiagram
 
 ![Blockscout: pay() succeeded, USDG from the payer to the contract and from the contract to the merchant, gas fee 0.0000028 ETH](App/screenshots/8_checkout_payment_blockscout.jpg)
 
-**The contract is verified.** Sourcify compiled the source in this repo and got the same bytecode that runs on Robinhood Chain (*Exact Match*). Anyone can read exactly what the contract does.
+**The contract is verified.** Sourcify compiled the source and got the same bytecode that runs on Robinhood Chain (*Exact Match*). The readable, English-commented copy in this repo compiles to the same logic: only the metadata hash at the end differs, and [`compare-onchain.mjs`](Contracts/checkout/scripts/compare-onchain.mjs) proves it.
 
 ![Sourcify: Checkout on Robinhood Chain, Exact Match for runtime and creation bytecode](App/screenshots/9_checkout_verified_sourcify.jpg)
 

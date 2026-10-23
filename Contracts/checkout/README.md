@@ -33,7 +33,8 @@ USDG does **not** revert when an EIP-3009 authorization is replayed or was cance
 
 ## Source and tests
 
-- `contracts/Checkout.sol` is byte-identical to the source verified on Sourcify. Its comments are in Spanish: changing even a comment changes the metadata hash in the deployed bytecode, so the file is left exactly as deployed.
+- `contracts/Checkout.sol` is the readable source, commented in English. Its code is identical to the deployed contract: with the comments and whitespace removed, it is the same text as the verified source.
+- `verify/Checkout.verified.sol` is the exact source verified on Sourcify (its comments are in Spanish). Solidity's metadata hash covers the comments, so only this file matches the deployed bytecode *byte for byte*; the English copy matches all 5,130 bytes of logic and differs only in that 53-byte hash. `npm run build && node scripts/compare-onchain.mjs` checks it against the chain.
 - `contracts/MockUSDG.sol` is a test double that imitates USDG's EIP-3009 (including the silent no-op). It is not deployed.
 - `verify/standard-input.json` is the solc standard JSON input used for verification (contract `project/contracts/Checkout.sol:Checkout`).
 - `test/Checkout.ts` has 18 tests on Hardhat 3's in-memory EVM: charge and split, double payment, 30-minute expiry, forged or altered orders, signature binding to the whole order, expired payer signature, replay, cancelled authorization with leftover balance, operator transfer, rescue and the domain separator.

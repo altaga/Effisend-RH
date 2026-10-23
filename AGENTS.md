@@ -86,9 +86,9 @@ npm ci                        # exact versions from package-lock.json
 npm test                      # Hardhat 3 in-memory EVM; prints "18 passing"
 ```
 
-- `contracts/Checkout.sol` is **byte-identical to the source verified on Sourcify** (solc 0.8.28, optimizer on with 200 runs, `evmVersion: cancun`). Its comments are in Spanish and must stay: any edit, even a comment, changes the metadata hash in the deployed bytecode and the `exact_match` no longer holds. Do not edit it unless the task is a new deployment, and say so.
+- `contracts/Checkout.sol` is the readable source with English comments; `verify/Checkout.verified.sol` is the exact source verified on Sourcify (Spanish comments) and must **never be edited**. The English copy must keep the same code: with comments and whitespace removed, both files are identical, and `node scripts/compare-onchain.mjs` must report `logic identical: true`. A change to the code (not only comments) means a new deployment: say so, and expect the verification to be redone.
 - `contracts/MockUSDG.sol` is a test double (not deployed). It reproduces real USDG: replaying or cancelling an EIP-3009 authorization does **not** revert, it silently does nothing, so `pay()` checks its balance grew by exactly the order amount.
-- `verify/standard-input.json` is the standard JSON input used to verify the contract; keep it in sync with `Checkout.sol`.
+- `verify/standard-input.json` is the standard JSON input used to verify the contract; it embeds `verify/Checkout.verified.sol`. Keep both unchanged.
 - Behaviour: orders are signed off-chain by the operator (EIP-712); the payer signs a USDG `ReceiveWithAuthorization` with `nonce = keccak256(orderHash, payer)`; anyone calls `pay(order, operatorSignature, authorization)`; the contract never keeps funds; at most 5 splits (basis points, total ≤ 100%); operator changes are two-step; `rescueTokens` is operator-only.
 
 Contract behaviour (`EffisendNFT`, ERC-721 on OpenZeppelin 5, `Ownable`):

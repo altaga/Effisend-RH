@@ -121,6 +121,23 @@ flowchart LR
 | **No gas for the customer** | The customer only signs. The relayer pays the network fee (0.0000028 ETH in the payment below). |
 | **Revenue splits** | One order can pay up to 5 partners a percentage in the same transaction. Built and tested, not switched on in the app yet. |
 
+**One transaction per payment.** Everything below happens inside a single on-chain transaction sent by the relayer (139,864 gas, four logs: `AuthorizationUsed`, two `Transfer`, `Paid`).
+
+```mermaid
+sequenceDiagram
+  participant R as Relayer
+  participant C as Checkout contract
+  participant U as USDG
+  participant M as Merchant
+  R->>C: pay(order, operator signature, customer authorization)
+  C->>C: check the order, its expiry and the operator signature
+  C->>U: receiveWithAuthorization(customer, contract, 5 USDG)
+  U-->>C: 5 USDG moved from the customer, AuthorizationUsed
+  C->>C: check the balance grew by exactly 5 USDG
+  C->>M: transfer 5 USDG
+  C->>C: mark the order paid and emit Paid
+```
+
 **The real payment on Blockscout.** Effisend's relayer called `pay` on the contract. Under *Tokens transferred*, 0.01 USDG goes from the customer to the contract and from the contract to the merchant, in one transaction confirmed in under 0.1 s.
 
 ![Blockscout: pay() succeeded, USDG from the payer to the contract and from the contract to the merchant, gas fee 0.0000028 ETH](App/screenshots/8_checkout_payment_blockscout.jpg)

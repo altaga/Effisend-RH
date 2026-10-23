@@ -42,7 +42,7 @@ The app's source code and its backend are not in this repository.
 | **Robinhood Order** | A payment order settled by the Checkout smart contract: the payer signs once with any wallet, pays no gas, and the contract pays the merchant in USDG | [`0x0e94…7ba1`](https://robin.etherscan.io/tx/0x0e9461c269c192694de70e099c76b615ffab5448147fa1a86e35bd7a60737ba1) · [contract](https://robin.etherscan.io/address/0x97a394a57d9Cb523CAAFa2482215e86908b780F4) |
 | **Card top-up from Robinhood** | USDG on Robinhood to USDC on Linea in about a second | [`0xc9bd…8a75`](https://robin.etherscan.io/tx/0xc9bdb0d58abc5e118317dd58ce53aacd40db4b8e5c362f8b481e78e51baf8a75) → [`0x3ca8…713e`](https://lineascan.build/tx/0x3ca8e0b83a2fc192741f64669fe91287031cf6b34de408cf91eb209cf234713e) |
 | **Effi NFT on Robinhood** | Contract verified byte for byte against this repo's source | [`0xDDa3…DC97`](https://robin.etherscan.io/address/0xDDa30795FF04677C1c4B58616b7b77503554DC97) |
-| **Real merchant sales** | Pudgy Penguins Pop-Up, Tokyo Dome City: **20 paid orders, $635.67, 14 paying wallets** | [all 20 transactions](#real-world-traction-pudgy-penguins-pop-up) |
+| **Real merchant sales** | Pudgy Penguins Pop-Up, Tokyo Dome City: **20 paid orders, $635.67, 14 paying wallets** | [Pudgy Penguins Pop-Up](#real-world-traction-pudgy-penguins-pop-up) |
 
 ---
 
@@ -342,46 +342,6 @@ Reconciled from the chains themselves. A payment counts when it reached the poin
 | Distinct paying wallets | **14** (one wallet paid 7 orders, $289.98) |
 | Average ticket | $31.78 |
 | Failed on-chain payments | 0 |
-
-| Network | Orders | Value | Share |
-|---|---|---|---|
-| Solana | 11 | $420.91 | 66.2% |
-| Ethereum | 6 | $149.90 | 23.6% |
-| Base | 3 | $64.86 | 10.2% |
-
-Not counted: setup and test transfers under $5 (the morning of 9/24 and on 9/28) and internal movements.
-
-<details>
-<summary><b>All 20 orders, with links to the explorers</b></summary>
-
-| # | Date (JST) | Network | Paid | Transaction |
-|---|---|---|---|---|
-| 1 | 2026-09-24 13:25 | Solana | 44.98 USDC | [`5SEcnB…JVXT`](https://solscan.io/tx/5SEcnBfBPEMWLU36qg6bpor5mJUN48PLrx4HdfZdBrfLo3J2coLyQbs54sZ2PMF4hgUfmq6ddLr873sjXRcCJVXT) |
-| 2 | 2026-09-24 16:37 | Ethereum | 8.00 USDC | [`0x6860…a273`](https://etherscan.io/tx/0x68606c8223032e39fd803045068105b965c697bb0e4c764b383c9d7fd20ba273) |
-| 3 | 2026-09-24 18:20 | Solana | 110.02 USDC | [`3EpHsg…jZUR`](https://solscan.io/tx/3EpHsgSG7XRRkSKrnExQQb1LA34WEDzWhZgfdBdZ1cpy3BYAnjMQMV6BkdRyMzZxics15JZtXoSEgXru4qnbjZUR) |
-| 4 | 2026-09-24 19:00 | Base | 19.99 USDC | [`0x4af7…3c5b`](https://basescan.org/tx/0x4af7f70b8740b668d8c4a387170bbd1b50f80749131d2bf2f22a13bf07d13c5b) |
-| 5 | 2026-09-24 19:01 | Solana | 27.99 USDC | [`3pnfVu…1nng`](https://solscan.io/tx/3pnfVu4K8vuMDzYeWYBgNKkgKHMZYNQanVPHiffjcvWX3WNBFygnDovDgvZLnujFfbcosCvmbiJw5UjavTmo1nng) |
-| 6 | 2026-09-24 19:10 | Ethereum | 7.99 USDC | [`0x00e1…3dbd`](https://etherscan.io/tx/0x00e190883f64ff3e895b0574ac00d6a4106d7238ba765290c4b4a77d58133dbd) |
-| 7 | 2026-09-24 19:50 | Solana | 19.99 USDC | [`4KS3pN…hoaY`](https://solscan.io/tx/4KS3pN3PmfczFWGvwvBccfv5LHWNDpmWwGE21SZnMRjPKhaVezaqYU2NnNFCRbpaeadDoenymv6WAxnJvU98hoaY) |
-| 8 | 2026-09-24 19:59 | Solana | 19.99 USDC | [`2BgWSm…b4Bj`](https://solscan.io/tx/2BgWSmSRDSaURpXnXpRmAdhoddnMLXQeDUHxFDray9bWisJi9Tgb8BUbTEvLbUu24ufh3btDMJdSaxqp5nmKb4Bj) |
-| 9 | 2026-09-24 20:01 | Solana | 49.98 USDC | [`5ssvit…X95N`](https://solscan.io/tx/5ssvitqpo7yGj36S8tyN71Nc2rANeEk859j1uxwMbBXdDwEaStCmUqwEvJMrS1rTpRbgvtSm54Pr2D6DZXAKX95N) |
-| 10 | 2026-09-24 20:06 | Ethereum | 8.00 USDT | [`0x7ebb…995b`](https://etherscan.io/tx/0x7ebb8b16f2f637025337ae9761d64a44bda2bf2ea7a5cf20d22ba9c04f56995b) |
-| 11 | 2026-09-24 20:36 | Solana | 19.99 USDC | [`2WRL3e…Rrwi`](https://solscan.io/tx/2WRL3ecYGwh1gCF5GRE1ZPZgpxD4H2KD5SGJRNbZnQArFMJjsuKtCUG3Mzp7iE46ayYy4zFEWwgVWD8CiRHhRrwi) |
-| 12 | 2026-09-24 20:52 | Solana | 19.99 USDC | [`2aeds2…yEEv`](https://solscan.io/tx/2aeds2jnZwgr8PdC1yppUfiqU2BHFtR4StLU9KxbjUCuE8nprLsoVeht3LvdoWhAhcFNDrXNPHzQ4XwP1Rc8yEEv) |
-| 13 | 2026-09-24 20:57 | Solana | 49.99 USDC | [`2j1w3u…m463`](https://solscan.io/tx/2j1w3uSDaiw4BCcT9sJqHLoUmRPXkYhDrMhT2WY9XGUKnhGL4kW8NE32GVMR57JCrZXr3wfwQBVGWtVFpNgQm463) |
-| 14 | 2026-09-24 21:01 | Base | 19.88 USDC | [`0x00c6…672c`](https://basescan.org/tx/0x00c6ae336b624aca369aebebaca5b2e7ccd6c1e757c994afd2e3901c349a672c) |
-| 15 | 2026-09-24 21:32 | Solana | 49.99 USDC | [`P2oSqV…tGEw`](https://solscan.io/tx/P2oSqVLHAGJ8uGznrwiK2ojJg4TEPu45ZwdRiTCLoCLNtxyFgCAquFdDHdH63UWD4H9H6F6tseiAYGcFwiCtGEw) |
-| 16 | 2026-09-25 10:53 | Ethereum | 80.92 USDT | [`0xa631…8dd9`](https://etherscan.io/tx/0xa631a9e74bf970707ef0f56e867529172c6f4e6f143ed8648953e70b0d728dd9) |
-| 17 | 2026-09-25 12:57 | Base | 24.99 USDC | [`0xb232…9ce7`](https://basescan.org/tx/0xb23272758b029f8564325247569d93fcc4eb7ce2d9309a758eba51b48a0a9ce7) |
-| 18 | 2026-09-25 14:08 | Ethereum | 19.99 USDC | [`0x4bfe…3e05`](https://etherscan.io/tx/0x4bfe317fd547bc24883983b6a069038b1f9ddd46b93f986c6061a349e9d53e05) |
-| 19 | 2026-09-25 18:25 | Solana | 7.99 USDC | [`meVte6…8kmi`](https://solscan.io/tx/meVte6ZPpAVW9oub6BVpTnF8cpKo4GR55hBNbcv1Wm76qcF2TzQ6aLCvZm3orXBBnaTZVVvCVZhxMssrmvK8kmi) |
-| 20 | 2026-10-01 15:05 | Ethereum | 24.99 USDC | [`0xa96b…d571`](https://etherscan.io/tx/0xa96b95e3991d83de10392352bdbbabfe6f90b58c5e09439bad0a93635418d571) |
-
-</details>
-
-**Next stop: Robinhood Chain.** The same counter flow, now with Face ID and USDG on Robinhood Chain's ~0.1 s blocks, is live in the app today (see [Face ID checkout](#1-face-id-checkout-selfie--pin)). The pop-up showed that real customers will pay in stablecoins at a merch counter; Robinhood Chain makes that payment confirm instantly in a native dollar.
-
-**Next: live Face Checkout demos on Robinhood Chain at TOKEN2049 Singapore.**
 
 ---
 

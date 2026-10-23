@@ -44,7 +44,7 @@ Domain rules that the docs and any example must respect:
 | Robinhood Pay | 0.01 USDG, test wallet → point of sale | tx `0x94611b25…607a` (Robinhood) |
 | Card top-up | Robinhood `0xc9bdb0d5…8a75` → Linea `0x3ca8e0b8…713e` | explorers |
 | Effi delivered on Robinhood | token #0 via `distribute()` | tx `0x470f2546…2d82` |
-| Pudgy Penguins Pop-Up (2026-09-24 → 10-02, closed 9/26-27) | 20 orders · $635.67 · 14 distinct paying wallets (one paid 7) · Solana 11/$420.91, Ethereum 6/$149.90, Base 3/$64.86 · 18 USDC + 2 USDT | the 20 hashes in README |
+| Pudgy Penguins Pop-Up (2026-09-24 → 10-02, closed 9/26-27) | 20 orders · $635.67 · 14 distinct paying wallets (one paid 7) · Solana 11/$420.91, Ethereum 6/$149.90, Base 3/$64.86 · 18 USDC + 2 USDT | reconciled on-chain data (the README no longer lists the 20 hashes or the per-network table) |
 | Robinhood Order payment | 0.01 USDG, team-owned external wallet → point of sale through WalletConnect; gas paid by the relayer (139,864 gas, 0.0000028 ETH); 4 logs; payer's ETH balance and nonce unchanged across the block | tx `0x0e9461c2…7ba1` (block 95842371) |
 | Checkout verification | Sourcify `exact_match` for runtime and creation bytecode | `https://sourcify.dev/server/v2/contract/4663/0x97a394a57d9Cb523CAAFa2482215e86908b780F4` |
 | Robinhood Chain is an Arbitrum chain | `ArbSys` precompile `0x…64`: `arbChainID()` = 4663, `arbOSVersion()` = `0x74` (ArbOS 61) | `eth_call` to `0x0000000000000000000000000000000000000064` with `0xd127f54a` and `0x051038f2` |
@@ -62,7 +62,7 @@ Rules:
 - Do not list customers' wallet addresses in prose (the explorer links are enough).
 - Photos: no identifiable customer faces, and strip EXIF/GPS before committing.
 - When an external purchase on Robinhood Chain happens, add its hash to "At a glance". Do not reword the existing claims to suggest it happened earlier.
-- TOKEN2049 Singapore is a **planned** demo (README: "Next: …"). Keep it as a plan until there are real results; then report only on-chain facts (hashes, amounts), the same way as the Pudgy section.
+- TOKEN2049 Singapore is a **planned** demo and the README does not mention it. Keep it as a plan until there are real results; then report only on-chain facts (hashes, amounts), the same way as the Pudgy section.
 
 ## 4. Contracts: build, test, verify
 

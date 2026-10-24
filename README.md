@@ -1,4 +1,4 @@
-# Effisend — Face Checkout on Robinhood Chain
+# Effisend — Face Checkout and concierge on Robinhood Chain
 
 > **A selfie and a PIN become USDG paid on Robinhood Chain.** No card, no seed phrase, no app to install.
 > **And now any wallet can pay with one free signature, settled by a verified smart contract.**
